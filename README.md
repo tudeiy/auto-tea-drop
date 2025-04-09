@@ -2,7 +2,9 @@
 gunakan dengan bijak 
 
 ***git clone script**
-git clone
+```
+git clone https://github.com/tudeiy/auto-tea-drop.git
+```
 **Create Screen**
 ```
 screen -S teaauto
