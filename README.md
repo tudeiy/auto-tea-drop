@@ -8,7 +8,7 @@ support channelku : https://t.me/kingfeeder
 - Random transaksi dari jam 12 - 15 pm
 - notif ke bot telegram
 
-***git clone script**
+**git clone script**
 ```
 git clone https://github.com/tudeiy/auto-tea-drop.git
 cd auto-tea-drop
