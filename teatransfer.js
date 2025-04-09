@@ -124,7 +124,12 @@ async function runForAccount(accountName, index) {
 
     try {
         const decimals = await token.decimals();
-        const amount = ethers.parseUnits("1.0", decimals);
+        function getRandomTokenAmount(decimals) {
+            const min = 100;
+            const max = 1000;
+            const randomAmount = (Math.random() * (max - min) + min).toFixed(4);
+            return ethers.parseUnits(randomAmount, decimals);
+        }        
 
         const sentFile = path.join("accounts", `${accountName}_sent.txt`);
         const pendingFile = path.join("accounts", `${accountName}_pending.txt`);
@@ -156,11 +161,15 @@ async function runForAccount(accountName, index) {
                     console.log(`⚠️ [${accountName}] Alamat tidak valid, dilewati: ${recipient}`);
                     continue;
                 }
+        
+                const amount = getRandomTokenAmount(decimals); // ← Random di sini
+        
                 const tx = await token.transfer(recipient, amount);                
                 await tx.wait();
-                console.log(`✅ [${accountName}] ${i + 1}/${total} → ${recipient}`);
+                console.log(`✅ [${accountName}] ${i + 1}/${total} → ${recipient} (${ethers.formatUnits(amount, decimals)} token)`);
                 sent.push(recipient);
             } catch (err) {
+                    
                 const errMsg = err.message || String(err);
                 if (errMsg.includes("network does not support ENS")) {
                     console.log(`⚠️ [${accountName}] Gagal ke ${recipient} (ENS tidak didukung, diabaikan)`);
