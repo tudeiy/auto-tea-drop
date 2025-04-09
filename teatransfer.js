@@ -173,7 +173,11 @@ async function runForAccount(accountName, index) {
                     } catch (waitErr) {
                         if (waitErr?.code === 'UNKNOWN_ERROR' && waitErr?.error?.code === 429) {
                             console.log(`🔁 Rate limit hit, retrying tx.wait() [${retry + 1}/5]...`);
-                            await delay(3000);
+                            await delay(5000); // tambahkan delay agar tidak langsung retry
+                            continue;
+                        } else if (waitErr?.code === 'SERVER_ERROR' && waitErr?.info?.responseStatus === "503 Service Unavailable") {
+                            console.log(`🔁 Alchemy 503 error, retrying tx.wait() [${retry + 1}/5]...`);
+                            await delay(5000);
                             continue;
                         }
                         throw waitErr;
