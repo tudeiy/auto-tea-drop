@@ -50,3 +50,6 @@ npm install
 echo "🌐 Install browser Chromium untuk Playwright..."
 npx playwright install --with-deps
 
+npm install dotenv
+
+
