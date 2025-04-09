@@ -27,6 +27,3 @@ npm install
 echo "🌐 Install browser Chromium untuk Playwright..."
 npx playwright install --with-deps
 
-# Jalankan script
-echo "🚀 Jalankan teatransfer.js..."
-node teatransfer.js --now
