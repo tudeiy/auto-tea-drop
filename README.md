@@ -21,7 +21,7 @@ nano .env
 ```
 **mainkan**
 ```
-node teatransfer.js
+node teatransfer.js --now
 ```
 **cara masuk screen**
 ```
