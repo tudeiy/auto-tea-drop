@@ -1,5 +1,12 @@
 # Script From Airdrop Sambil Rebahan
-gunakan dengan bijak 
+gunakan dengan bijak
+support channelku : https://t.me/kingfeeder
+
+#Fitur
+- Ambil addres terbaru dari https://sepolia.tea.xyz/txs untuk di kirim transaksi
+- Support Multi Account
+- Random transaksi dari jam 12 - 15 pm
+- notif ke bot telegram
 
 ***git clone script**
 ```
