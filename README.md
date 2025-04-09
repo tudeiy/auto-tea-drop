@@ -35,3 +35,5 @@ node teatransfer.js --now
 ```
 screen -r teaauto
 ```
+
+support by : Chat GPT AI
