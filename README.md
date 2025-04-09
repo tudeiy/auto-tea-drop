@@ -23,6 +23,7 @@ nano .env
 ```
 node teatransfer.js --now
 ```
+# fingsi tambahan 
 **cara masuk screen**
 ```
 screen -r teaauto
