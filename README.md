@@ -1,6 +1,8 @@
 # Script From Airdrop Sambil Rebahan
 gunakan dengan bijak 
 
+***git clone script**
+git clone
 **Create Screen**
 ```
 screen -S teaauto
