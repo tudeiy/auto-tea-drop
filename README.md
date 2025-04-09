@@ -12,8 +12,8 @@ screen -S teaauto
 ```
 **INSTALL AUTO**
 ```
-chmod +x setup-teatransfer.sh
-./setup-teatransfer.sh
+chmod +x teatransfer.sh
+./teatransfer.sh
 ```
 **Isi Private key dan alamat token (token tele boleh abaikan)**
 ```
