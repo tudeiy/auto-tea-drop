@@ -1,6 +1,10 @@
 # Script From Airdrop Sambil Rebahan
 gunakan dengan bijak 
 
+**Create Screen**
+```
+screen -S teaauto
+```
 **INSTALL AUTO**
 ```
 chmod +x setup-teatransfer.sh
@@ -13,4 +17,8 @@ nano .env
 **mainkan**
 ```
 node teatransfer.js
+```
+**cara masuk screen**
+```
+screen -r teaauto
 ```
