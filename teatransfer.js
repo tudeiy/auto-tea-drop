@@ -67,7 +67,7 @@ function writeAddressesToFile(filename, addresses) {
     fs.writeFileSync(filename, addresses.join('\n'), 'utf8');
 }
 
-async function scrapeFromAddresses(minimum = 100) {
+async function scrapeFromAddresses(minimum = 115) {
     console.log("🌐 Scraping alamat dari explorer...");
     const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
     const page = await browser.newPage();
@@ -135,7 +135,7 @@ async function runForAccount(accountName, index) {
         const pendingFile = path.join("accounts", `${accountName}_pending.txt`);
         const sent = readAddressesFromFile(sentFile);
 
-        const allFroms = await scrapeFromAddresses(100);
+        const allFroms = await scrapeFromAddresses(115);
         const recipients = allFroms.filter(addr => !sent.includes(addr)).slice(0, 150);
 
         if (recipients.length === 0) {
