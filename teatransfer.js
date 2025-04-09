@@ -165,7 +165,21 @@ async function runForAccount(accountName, index) {
                 const amount = getRandomTokenAmount(decimals); // ← Random di sini
         
                 const tx = await token.transfer(recipient, amount);                
-                await tx.wait();
+                let receipt = null;
+                for (let retry = 0; retry < 5; retry++) {
+                    try {
+                        receipt = await tx.wait();
+                        break;
+                    } catch (waitErr) {
+                        if (waitErr?.code === 'UNKNOWN_ERROR' && waitErr?.error?.code === 429) {
+                            console.log(`🔁 Rate limit hit, retrying tx.wait() [${retry + 1}/5]...`);
+                            await delay(3000);
+                            continue;
+                        }
+                        throw waitErr;
+                    }
+                }
+
                 console.log(`✅ [${accountName}] ${i + 1}/${total} → ${recipient} (${ethers.formatUnits(amount, decimals)} token)`);
                 sent.push(recipient);
             } catch (err) {
