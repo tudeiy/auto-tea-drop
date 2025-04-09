@@ -53,5 +53,8 @@ npx playwright install --with-deps
 echo "install dotenv"
 npm install dotenv ethers axios playwright
 
+npx playwright install --with-deps
+
+
 
 
