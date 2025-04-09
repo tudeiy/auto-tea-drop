@@ -15,7 +15,7 @@ screen -S teaauto
 chmod +x teatransfer.sh
 ./teatransfer.sh
 ```
-**Isi Private key dan alamat token (token tele boleh abaikan)**
+**Isi Private key dan alamat token (token telegram boleh kosongin aja)**
 ```
 nano .env
 ```
