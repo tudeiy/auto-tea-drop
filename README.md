@@ -4,6 +4,7 @@ gunakan dengan bijak
 ***git clone script**
 ```
 git clone https://github.com/tudeiy/auto-tea-drop.git
+cd auto-tea-drop
 ```
 **Create Screen**
 ```
