@@ -51,6 +51,7 @@ echo "🌐 Install browser Chromium untuk Playwright..."
 npx playwright install --with-deps
 
 echo "install dotenv"
-npm install dotenv
+npm install dotenv ethers axios playwright
+
 
 
