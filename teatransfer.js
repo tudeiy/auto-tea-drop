@@ -57,6 +57,10 @@ function randomDelay() {
     return delay(delayTime);
 }
 
+function randomDelayMs(min = 25000, max = 35000) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function readAddressesFromFile(filename) {
     if (!fs.existsSync(filename)) return [];
     const data = fs.readFileSync(filename, 'utf8');
@@ -79,7 +83,7 @@ async function scrapeFromAddresses(minimum = 115) {
     while (unique.size < minimum) {
         attempts++;
         await page.reload({ waitUntil: 'networkidle' });
-        await delay(5000);
+        await delay(10000);
 
         const addresses = await page.$$eval("a[href^='/address/']", (els) => {
             return els
@@ -144,7 +148,7 @@ async function runForAccount(accountName, index) {
             return;
         }
 
-        const total = Math.min(recipients.length, Math.floor(Math.random() * 21) + 105); // 105–125
+        const total = Math.min(recipients.length, Math.floor(Math.random() * 21) + 115); // 105–125
         const selected = recipients.slice(0, total);
         const failed = [];
 
@@ -166,21 +170,27 @@ async function runForAccount(accountName, index) {
         
                 const tx = await token.transfer(recipient, amount);                
                 let receipt = null;
-                for (let retry = 0; retry < 5; retry++) {
+                let retryCount = 0;
+
+                while (!receipt) {
                     try {
                         receipt = await tx.wait();
                         break;
                     } catch (waitErr) {
-                        if (waitErr?.code === 'UNKNOWN_ERROR' && waitErr?.error?.code === 429) {
-                            console.log(`🔁 Rate limit hit, retrying tx.wait() [${retry + 1}/5]...`);
-                            await delay(5000); // tambahkan delay agar tidak langsung retry
-                            continue;
-                        } else if (waitErr?.code === 'SERVER_ERROR' && waitErr?.info?.responseStatus === "503 Service Unavailable") {
-                            console.log(`🔁 Alchemy 503 error, retrying tx.wait() [${retry + 1}/5]...`);
-                            await delay(5000);
-                            continue;
+                        const errMsg = waitErr?.error?.message || waitErr?.message || String(waitErr);
+                        const retryable =
+                            (waitErr?.code === 'UNKNOWN_ERROR' && waitErr?.error?.code === 429) ||
+                                (waitErr?.code === 'SERVER_ERROR' && waitErr?.info?.responseStatus === "503 Service Unavailable");
+
+                        if (retryable) {
+                            retryCount++;
+                            const delayMs = randomDelayMs(25000, 35000);
+                            onsole.log(`🔁 [${accountName}] tx.wait() gagal (retry ke-${retryCount}): ${errMsg}`);
+                            console.log(`⏳ Delay ${(delayMs / 1000).toFixed(1)} detik sebelum retry...`);
+                            await delay(delayMs);
+                        } else {
+                            throw waitErr;
                         }
-                        throw waitErr;
                     }
                 }
 
