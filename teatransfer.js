@@ -88,7 +88,6 @@ async function scrapeFromAddresses(minimum = 115) {
         const addresses = await page.$$eval("a[href^='/address/']", (els) => {
             return els
                 .map((el, index) => {
-                    // Ambil hanya elemen 'from' berdasarkan pola index genap (misalnya)
                     if (index % 2 === 0) {
                         const addr = el.getAttribute("href").replace("/address/", "").trim().toLowerCase();
                         return addr.startsWith("0x") && addr.length === 42 ? addr : null;
@@ -128,12 +127,12 @@ async function runForAccount(accountName, index) {
 
     try {
         const decimals = await token.decimals();
-        function getRandomTokenAmount(decimals) {
+        const getRandomTokenAmount = (decimals) => {
             const min = 100;
             const max = 1000;
             const randomAmount = (Math.random() * (max - min) + min).toFixed(4);
             return ethers.parseUnits(randomAmount, decimals);
-        }        
+        };
 
         const sentFile = path.join("accounts", `${accountName}_sent.txt`);
         const pendingFile = path.join("accounts", `${accountName}_pending.txt`);
@@ -148,7 +147,7 @@ async function runForAccount(accountName, index) {
             return;
         }
 
-        const total = Math.min(recipients.length, Math.floor(Math.random() * 21) + 115); // 105–125
+        const total = Math.min(recipients.length, Math.floor(Math.random() * 21) + 105);
         const selected = recipients.slice(0, total);
         const failed = [];
 
@@ -157,35 +156,38 @@ async function runForAccount(accountName, index) {
         for (let i = 0; i < selected.length; i++) {
             const recipient = selected[i];
             try {
-                if (!ethers.isAddress(recipient)) {
-                    console.log(`⚠️ [${accountName}] Alamat tidak valid, dilewati: ${recipient}`);
-                    continue;
-                }                
                 if (!/^0x[a-fA-F0-9]{40}$/.test(recipient)) {
                     console.log(`⚠️ [${accountName}] Alamat tidak valid, dilewati: ${recipient}`);
                     continue;
                 }
-        
-                const amount = getRandomTokenAmount(decimals); // ← Random di sini
-        
-                const tx = await token.transfer(recipient, amount);                
+
+                const amount = getRandomTokenAmount(decimals);
+                const tx = await token.transfer(recipient, amount);
+
+                // ⏳ Delay acak 10–15 detik sebelum tx.wait()
+                const preWaitDelay = randomDelayMs(10000, 15000);
+                console.log(`⏳ Delay ${(preWaitDelay / 1000).toFixed(1)} detik sebelum tx.wait()...`);
+                await delay(preWaitDelay);
+
                 let receipt = null;
                 let retryCount = 0;
+
 
                 while (!receipt) {
                     try {
                         receipt = await tx.wait();
-                        break;
                     } catch (waitErr) {
                         const errMsg = waitErr?.error?.message || waitErr?.message || String(waitErr);
                         const retryable =
-                            (waitErr?.code === 'UNKNOWN_ERROR' && waitErr?.error?.code === 429) ||
-                                (waitErr?.code === 'SERVER_ERROR' && waitErr?.info?.responseStatus === "503 Service Unavailable");
+                            errMsg.includes("429") ||
+                            errMsg.includes("enhance_your_calm") ||
+                            errMsg.includes("Service Unavailable") ||
+                            waitErr.code === 'SERVER_ERROR';
 
                         if (retryable) {
                             retryCount++;
-                            const delayMs = randomDelayMs(25000, 35000);
-                            onsole.log(`🔁 [${accountName}] tx.wait() gagal (retry ke-${retryCount}): ${errMsg}`);
+                            const delayMs = randomDelayMs();
+                            console.log(`🔁 [${accountName}] tx.wait() retry ${retryCount}: ${errMsg}`);
                             console.log(`⏳ Delay ${(delayMs / 1000).toFixed(1)} detik sebelum retry...`);
                             await delay(delayMs);
                         } else {
@@ -197,10 +199,9 @@ async function runForAccount(accountName, index) {
                 console.log(`✅ [${accountName}] ${i + 1}/${total} → ${recipient} (${ethers.formatUnits(amount, decimals)} token)`);
                 sent.push(recipient);
             } catch (err) {
-                    
                 const errMsg = err.message || String(err);
-                if (errMsg.includes("network does not support ENS")) {
-                    console.log(`⚠️ [${accountName}] Gagal ke ${recipient} (ENS tidak didukung, diabaikan)`);
+                if (errMsg.includes("ENS")) {
+                    console.log(`⚠️ [${accountName}] Gagal ke ${recipient} (ENS tidak didukung, dilewati)`);
                 } else {
                     console.log(`❌ [${accountName}] Gagal ke ${recipient}: ${errMsg}`);
                     await sendTelegramMessage(
@@ -209,6 +210,7 @@ async function runForAccount(accountName, index) {
                     failed.push(recipient);
                 }
             }
+
             await randomDelay();
         }
 
@@ -232,8 +234,8 @@ async function runAllAccounts() {
 
 function getRandomExecutionTime() {
     const now = new Date();
-    const startUTC = 5; // 12:00 WIB
-    const endUTC = 8;   // 15:00 WIB
+    const startUTC = 2; // 09:00 WIB
+    const endUTC = 5;   // 12:00 WIB
 
     const hour = Math.floor(Math.random() * (endUTC - startUTC + 1)) + startUTC;
     const minute = Math.floor(Math.random() * 60);
